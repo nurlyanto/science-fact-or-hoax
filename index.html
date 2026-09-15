@@ -1,1 +1,248 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fakta atau Hoaks Sains</title>
+<style>
+  :root {
+    --bg1:#071422;
+    --bg2:#0b2a3a;
+    --card:rgba(10,24,40,.78);
+    --ink:#eef7ff;
+    --muted:#9cb4c9;
+    --line:rgba(130,200,230,.22);
+    --cyan:#4de0ff;
+    --lime:#9dff7a;
+  }
+  body.light {
+    --bg1:#e8f4ff;
+    --bg2:#f3fbff;
+    --card:rgba(255,255,255,.86);
+    --ink:#102033;
+    --muted:#4e6478;
+    --line:rgba(20,60,90,.12);
+    --cyan:#0277bd;
+    --lime:#2e7d32;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;min-height:100%}
+  body{
+    font-family:"Segoe UI",Tahoma,Arial,sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(circle at 12% 8%, rgba(77,224,255,.18), transparent 28%),
+      radial-gradient(circle at 88% 0%, rgba(157,255,122,.12), transparent 26%),
+      linear-gradient(180deg,var(--bg1),var(--bg2));
+    padding:16px 14px 28px;
+  }
+  .stars{
+    position:fixed;inset:0;pointer-events:none;opacity:.35;
+    background-image:
+      radial-gradient(1px 1px at 10% 20%, #fff 50%, transparent 51%),
+      radial-gradient(1px 1px at 30% 70%, #fff 50%, transparent 51%),
+      radial-gradient(1.5px 1.5px at 70% 30%, #fff 50%, transparent 51%),
+      radial-gradient(1px 1px at 85% 80%, #fff 50%, transparent 51%),
+      radial-gradient(1px 1px at 50% 50%, #fff 50%, transparent 51%);
+  }
+  body.light .stars{opacity:.12}
+  .app{
+    position:relative;z-index:1;max-width:720px;margin:0 auto;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:24px;
+    padding:20px 18px 24px;
+    backdrop-filter:blur(14px);
+    box-shadow:0 18px 50px rgba(0,0,0,.25);
+  }
+  .top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .pill{
+    border:1px solid var(--line);background:transparent;color:var(--ink);
+    border-radius:999px;padding:8px 12px;font-weight:700;font-size:13px;cursor:pointer;
+  }
+  h1{font-size:clamp(26px,7vw,40px);line-height:1.15;margin:14px 0 8px}
+  .sub{color:var(--muted);margin:0 0 18px;line-height:1.55}
+  label{display:block;font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+  input{
+    width:100%;padding:14px;border-radius:14px;border:1px solid var(--line);
+    background:rgba(255,255,255,.04);color:inherit;font-size:16px;margin-bottom:14px;
+  }
+  .btn{
+    width:100%;border:0;border-radius:16px;padding:15px 16px;margin:8px 0 0;
+    font-size:17px;font-weight:800;cursor:pointer;color:#062018;
+    background:linear-gradient(135deg,var(--cyan),var(--lime));
+  }
+  .fact{background:linear-gradient(135deg,#1dbf73,#9dff7a);color:#062018}
+  .hoax{background:linear-gradient(135deg,#ff5d73,#ff9aa8);color:#2a060c}
+  .ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+  .meta{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;color:var(--muted);font-weight:700;font-size:14px}
+  .q{font-size:clamp(22px,6.2vw,34px);line-height:1.3;margin:16px 0 18px}
+  .bar{height:10px;background:rgba(255,255,255,.12);border-radius:99px;overflow:hidden;margin:10px 0 6px}
+  body.light .bar{background:rgba(0,0,0,.08)}
+  .fill{height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--lime));transition:width .2s linear}
+  .clock{font-variant-numeric:tabular-nums;font-weight:800;color:var(--cyan)}
+  .box{margin-top:14px;padding:14px;border-radius:16px;border:1px solid var(--line)}
+  .ok{border-color:rgba(46,229,157,.5);background:rgba(46,229,157,.12)}
+  .bad{border-color:rgba(255,93,115,.5);background:rgba(255,93,115,.12)}
+  .stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0 18px}
+  .stat{border:1px solid var(--line);border-radius:16px;padding:12px;text-align:center}
+  .stat b{display:block;font-size:24px}
+  .item{padding:12px 0;border-bottom:1px solid var(--line);font-size:15px}
+  .muted{color:var(--muted)}
+  @media (min-width:640px){
+    .pair{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .app{padding:28px}
+  }
+</style>
+</head>
+<body>
+<div class="stars"></div>
+<div class="app" id="app">Memuat...</div>
+<script>
+(function(){
+  function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
+  function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
+  var T = {
+    id:{title:"Fakta atau Hoaks Sains",sub:"Tentukan apakah pernyataan berikut fakta ilmiah atau hoaks. Setiap soal 30 detik.",name:"Nama",start:"Mulai Kuis",fact:"FAKTA",hoax:"HOAKS",next:"Soal berikutnya",result:"Hasil kuis",review:"Tinjau jawaban",again:"Main lagi",home:"Beranda",dark:"Mode gelap",light:"Mode terang",timeout:"Waktu habis",correct:"Benar",wrong:"Belum tepat"},
+    en:{title:"Science Fact or Hoax",sub:"Decide whether each statement is a scientific fact or a hoax. Every question has 30 seconds.",name:"Name",start:"Start Quiz",fact:"FACT",hoax:"HOAX",next:"Next question",result:"Quiz results",review:"Review answers",again:"Play again",home:"Home",dark:"Dark mode",light:"Light mode",timeout:"Time is up",correct:"Correct",wrong:"Not quite"}
+  };
+  var BANK = [
+    ["Manusia hanya menggunakan 10% otaknya.","Humans only use 10% of their brain.","Hoaks","Pencitraan otak menunjukkan hampir seluruh bagian otak aktif pada waktu berbeda.","Brain imaging shows nearly all parts of the brain are active at different times."],
+    ["Petir tidak pernah menyambar tempat yang sama dua kali.","Lightning never strikes the same place twice.","Hoaks","Petir bisa menyambar tempat yang sama berulang kali.","Lightning can strike the same place repeatedly."],
+    ["Kelelawar adalah mamalia.","Bats are mammals.","Fakta","Kelelawar menyusui anaknya dan berdarah panas.","Bats nurse their young and are warm-blooded."],
+    ["Semua bakteri berbahaya bagi manusia.","All bacteria are harmful to humans.","Hoaks","Banyak bakteri bermanfaat, misalnya untuk pencernaan.","Many bacteria are beneficial, including in digestion."],
+    ["Air selalu mendidih pada 100 C di mana pun.","Water always boils at 100 C everywhere.","Hoaks","Titik didih bergantung pada tekanan udara.","Boiling point depends on air pressure."],
+    ["Tumbuhan menghasilkan oksigen melalui fotosintesis.","Plants produce oxygen through photosynthesis.","Fakta","Fotosintesis memakai cahaya, air, dan karbon dioksida.","Photosynthesis uses light, water, and carbon dioxide."],
+    ["Banteng marah karena melihat warna merah.","Bulls get angry because they see red.","Hoaks","Yang memicu biasanya gerakan kain, bukan warna.","Movement of the cape, not the color, usually triggers charging."],
+    ["Tembok Besar Tiongkok mudah terlihat dari bulan dengan mata telanjang.","The Great Wall is easily visible from the Moon with the naked eye.","Hoaks","Astronaut tidak melihatnya dari bulan.","Astronauts could not see it from the Moon."],
+    ["Bulan punya sisi yang gelap selamanya.","The Moon has a side that is always dark forever.","Hoaks","Sisi jauh Bulan tetap mendapat sinar Matahari secara bergantian.","The far side still receives sunlight."],
+    ["Musim terjadi karena Bumi miring pada sumbunya.","Seasons happen because Earth is tilted on its axis.","Fakta","Kemiringan sumbu mengubah sudut datang sinar Matahari.","Axial tilt changes how sunlight hits each hemisphere."],
+    ["Pasang surut laut terutama karena gravitasi Bulan.","Ocean tides are caused mainly by the Moon gravity.","Fakta","Gravitasi Bulan menarik air laut.","The Moon gravity pulls on Earth oceans."],
+    ["Rambut dan kuku terus tumbuh setelah orang meninggal.","Hair and nails keep growing after death.","Hoaks","Kulit menyusut sehingga tampak lebih panjang.","Skin shrinks after death, making hair and nails look longer."],
+    ["Darah manusia di vena memang berwarna biru.","Blood in veins is actually blue.","Hoaks","Darah manusia merah. Tampilan biru karena hamburan cahaya di kulit.","Human blood is red. Veins can look blue because of light scattering."],
+    ["Virus dapat berkembang biak sendiri tanpa sel inang.","Viruses can reproduce without a host cell.","Hoaks","Virus membutuhkan sel inang untuk memperbanyak diri.","Viruses need a host cell to replicate."],
+    ["DNA ada pada tumbuhan, hewan, dan jamur.","DNA is found in plants, animals, and fungi.","Fakta","Hampir semua makhluk hidup seluler punya DNA.","Almost all cellular life has DNA."],
+    ["Efek rumah kaca hanya buatan manusia.","The greenhouse effect exists only because of humans.","Hoaks","Efek rumah kaca alami menjaga Bumi tetap hangat.","A natural greenhouse effect keeps Earth warm."],
+    ["Perubahan iklim modern terutama didorong gas rumah kaca dari aktivitas manusia.","Modern climate change is driven mainly by greenhouse gases from human activity.","Fakta","Kenaikan CO2 dari bahan bakar fosil sesuai dengan pola pemanasan.","Rising CO2 from fossil fuels matches the observed warming pattern."],
+    ["Vaksin merangsang sistem imun agar mengenali ancaman tertentu.","Vaccines stimulate the immune system to recognize a specific threat.","Fakta","Vaksin membantu tubuh membentuk perlindungan.","Vaccines help the body build protection."],
+    ["Antibiotik manjur untuk semua infeksi virus seperti flu biasa.","Antibiotics work against all viral infections like the common cold.","Hoaks","Antibiotik menargetkan bakteri, bukan virus.","Antibiotics target bacteria, not viruses."],
+    ["Menaruh baterai di kulkas selalu membuatnya lebih awet.","Storing batteries in the fridge always makes them last longer.","Hoaks","Suhu dingin dan lembap bisa merusak baterai.","Cold damp storage can damage batteries."],
+    ["Manusia hidup bersama dinosaurus non-unggas.","Humans lived with non-avian dinosaurs.","Hoaks","Dinosaurus non-unggas punah jauh sebelum manusia modern.","Non-avian dinosaurs died out long before modern humans."],
+    ["Benda lebih berat selalu jatuh lebih cepat, tanpa hitung hambatan udara.","Heavier objects always fall faster, ignoring air resistance.","Hoaks","Tanpa hambatan udara percepatannya sama.","Without air resistance the acceleration is the same."],
+    ["Matahari adalah bintang.","The Sun is a star.","Fakta","Matahari menghasilkan energi lewat fusi nuklir.","The Sun produces energy by nuclear fusion."],
+    ["Air murni menghantarkan listrik dengan sangat baik.","Pure water conducts electricity very well.","Hoaks","Air murni konduktor buruk. Yang menghantar adalah ion terlarut.","Pure water is a poor conductor. Dissolved ions make it conductive."],
+    ["Lidah punya peta kaku: manis hanya di ujung, pahit hanya di pangkal.","The tongue has a rigid map: sweet only at the tip, bitter only at the back.","Hoaks","Semua daerah lidah dapat mengecap rasa dasar.","All tongue regions can detect basic tastes."],
+    ["Teori ilmiah yang kuat otomatis berubah menjadi hukum alam.","A well-supported theory automatically becomes a law.","Hoaks","Teori dan hukum punya peran berbeda. Teori tidak naik pangkat jadi hukum.","Theories and laws have different roles. A theory does not become a law."],
+    ["Ide ilmiah dapat berubah jika bukti baru lebih kuat.","Scientific ideas can change if stronger evidence appears.","Fakta","Sains memperbaiki diri berdasarkan bukti.","Science corrects itself based on evidence."],
+    ["Kaca biasa adalah padatan amorf, bukan kristal seperti garam.","Ordinary glass is an amorphous solid, not a crystal like salt.","Fakta","Atom pada kaca tidak tersusun teratur seperti kristal.","Atoms in glass are not arranged in a regular crystal."],
+    ["Intan tersusun dari karbon.","Diamond is made of carbon.","Fakta","Intan adalah karbon murni dengan susunan kristal.","Diamond is pure carbon in a crystal structure."]
+  ];
+  var lang = lsGet("sfh_lang") || "id";
+  var dark = lsGet("sfh_dark") !== "0";
+  var state = {};
+  var timerId = null;
+  var LIMIT = 30;
+  var app = document.getElementById("app");
+  function t(k){ return T[lang][k]; }
+  function applyTheme(){ document.body.classList.toggle("light", !dark); }
+  applyTheme();
+  function shuffle(arr){
+    var a = arr.slice();
+    for(var i=a.length-1;i>0;i--){
+      var j = Math.floor(Math.random()*(i+1));
+      var tmp=a[i]; a[i]=a[j]; a[j]=tmp;
+    }
+    return a;
+  }
+  function home(){
+    clearInterval(timerId);
+    app.innerHTML =
+      '<div class="top">'+
+        '<button class="pill" id="themeBtn">'+(dark?t("light"):t("dark"))+'</button>'+
+        '<button class="pill" id="langBtn">'+(lang==="id"?"EN":"ID")+'</button>'+
+      '</div>'+
+      '<h1>'+t("title")+'</h1>'+
+      '<p class="sub">'+t("sub")+'</p>'+
+      '<label>'+t("name")+'</label>'+
+      '<input id="n" maxlength="40" placeholder="'+(lang==="id"?"Nama Anda":"Your name")+'">'+
+      '<button class="btn" id="go">'+t("start")+'</button>';
+    document.getElementById("themeBtn").onclick = function(){
+      dark = !dark; lsSet("sfh_dark", dark ? "1" : "0"); applyTheme(); home();
+    };
+    document.getElementById("langBtn").onclick = function(){
+      lang = lang==="id" ? "en" : "id"; lsSet("sfh_lang", lang); home();
+    };
+    document.getElementById("go").onclick = function(){
+      var name = (document.getElementById("n").value || (lang==="id"?"Peserta":"Player")).trim();
+      state = {name:name,i:0,score:0,c:0,w:0,skip:0,qs:shuffle(BANK),log:[]};
+      quiz();
+    };
+  }
+  function quiz(){
+    clearInterval(timerId);
+    if(state.i >= state.qs.length){ end(); return; }
+    var q = state.qs[state.i];
+    var total = state.qs.length;
+    app.innerHTML =
+      '<div class="meta"><span>'+state.name+'</span><span>'+(state.i+1)+'/'+total+' · '+state.score+'</span></div>'+
+      '<div class="bar"><div class="fill" id="f"></div></div>'+
+      '<div class="clock" id="clock">30</div>'+
+      '<h2 class="q">'+(lang==="id"?q[0]:q[1])+'</h2>'+
+      '<div class="pair">'+
+        '<button class="btn fact" id="bf">'+t("fact")+'</button>'+
+        '<button class="btn hoax" id="bh">'+t("hoax")+'</button>'+
+      '</div>'+
+      '<div id="explain"></div>';
+    document.getElementById("bf").onclick = function(){ answer("Fakta"); };
+    document.getElementById("bh").onclick = function(){ answer("Hoaks"); };
+    var left = LIMIT;
+    var fill = document.getElementById("f");
+    timerId = setInterval(function(){
+      left--;
+      var c = document.getElementById("clock");
+      if(c) c.textContent = left;
+      if(fill) fill.style.width = ((LIMIT-left)/LIMIT*100)+"%";
+      if(left<=0) answer("");
+    },1000);
+  }
+  function answer(v){
+    clearInterval(timerId);
+    var q = state.qs[state.i];
+    var ok = v === q[2];
+    if(!v) state.skip++;
+    else if(ok){ state.score += 10; state.c++; }
+    else state.w++;
+    state.log.push({q:q,v:v||"-",ok:ok});
+    var box = document.getElementById("explain");
+    if(!box) return;
+    var title = ok ? t("correct") : (v ? t("wrong") : t("timeout"));
+    box.innerHTML = '<div class="box '+(ok?"ok":"bad")+'"><h3>'+title+'</h3><p>'+(lang==="id"?q[3]:q[4])+'</p><button class="btn" id="nx">'+t("next")+'</button></div>';
+    var bf=document.getElementById("bf"), bh=document.getElementById("bh");
+    if(bf) bf.disabled = true;
+    if(bh) bh.disabled = true;
+    document.getElementById("nx").onclick = function(){ state.i++; quiz(); };
+  }
+  function end(){
+    var acc = Math.round((state.c/state.qs.length)*100)||0;
+    var html = '<h2>'+t("result")+'</h2><p class="muted">'+state.name+'</p>';
+    html += '<div class="stats"><div class="stat"><b>'+state.score+'</b>Skor</div><div class="stat"><b>'+acc+'%</b>'+(lang==="id"?"Akurasi":"Accuracy")+'</div><div class="stat"><b>'+state.c+'</b>'+(lang==="id"?"Benar":"Correct")+'</div><div class="stat"><b>'+state.w+'</b>'+(lang==="id"?"Salah":"Wrong")+'</div></div>';
+    html += '<h3>'+t("review")+'</h3>';
+    for(var i=0;i<state.log.length;i++){
+      var item=state.log[i], q=item.q;
+      html += '<div class="item"><div class="muted">'+(i+1)+'. '+(item.ok?(lang==="id"?"Benar":"Correct"):(lang==="id"?"Keliru":"Incorrect"))+' · '+(lang==="id"?"Jawaban":"Answer")+': '+item.v+' · '+(lang==="id"?"Kunci":"Key")+': '+q[2]+'</div><b>'+(lang==="id"?q[0]:q[1])+'</b><div class="muted">'+(lang==="id"?q[3]:q[4])+'</div></div>';
+    }
+    html += '<button class="btn" id="again">'+t("again")+'</button>';
+    html += '<button class="btn ghost" id="back">'+t("home")+'</button>';
+    app.innerHTML = html;
+    document.getElementById("again").onclick = function(){
+      state = {name:state.name,i:0,score:0,c:0,w:0,skip:0,qs:shuffle(BANK),log:[]};
+      quiz();
+    };
+    document.getElementById("back").onclick = home;
+  }
+  home();
+})();
+</script>
+</body>
+</html>
 
