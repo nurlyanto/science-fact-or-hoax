@@ -65,13 +65,17 @@
   label{display:block;font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
   input{
     width:100%;padding:14px;border-radius:14px;border:1px solid var(--line);
-    background:rgba(255,255,255,.04);color:inherit;font-size:16px;margin-bottom:14px;
+    background:rgba(255,255,255,.04);color:inherit;font-size:16px;margin-bottom:8px;
   }
+  input.invalid{border-color:#ff5d73}
+  .err{color:#ff9aa8;font-size:13px;font-weight:700;min-height:18px;margin:0 0 8px}
+  body.light .err{color:#c62828}
   .btn{
     width:100%;border:0;border-radius:16px;padding:15px 16px;margin:8px 0 0;
     font-size:17px;font-weight:800;cursor:pointer;color:#062018;
     background:linear-gradient(135deg,var(--cyan),var(--lime));
   }
+  .btn:disabled{opacity:.45;cursor:not-allowed}
   .fact{background:linear-gradient(135deg,#1dbf73,#9dff7a);color:#062018}
   .hoax{background:linear-gradient(135deg,#ff5d73,#ff9aa8);color:#2a060c}
   .ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
@@ -103,39 +107,22 @@
   function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
   function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
   var T = {
-    id:{title:"Fakta atau Hoaks Sains",sub:"Tentukan apakah pernyataan berikut fakta ilmiah atau hoaks. Setiap soal 30 detik.",name:"Nama",start:"Mulai Kuis",fact:"FAKTA",hoax:"HOAKS",next:"Soal berikutnya",result:"Hasil kuis",review:"Tinjau jawaban",again:"Main lagi",home:"Beranda",dark:"Mode gelap",light:"Mode terang",timeout:"Waktu habis",correct:"Benar",wrong:"Belum tepat"},
-    en:{title:"Science Fact or Hoax",sub:"Decide whether each statement is a scientific fact or a hoax. Every question has 30 seconds.",name:"Name",start:"Start Quiz",fact:"FACT",hoax:"HOAX",next:"Next question",result:"Quiz results",review:"Review answers",again:"Play again",home:"Home",dark:"Dark mode",light:"Light mode",timeout:"Time is up",correct:"Correct",wrong:"Not quite"}
+    id:{title:"Fakta atau Hoaks Sains",sub:"Tentukan apakah pernyataan berikut fakta ilmiah atau hoaks. Setiap soal 30 detik.",name:"Nama",start:"Mulai Kuis",fact:"FAKTA",hoax:"HOAKS",next:"Soal berikutnya",result:"Hasil kuis",review:"Tinjau jawaban",again:"Main lagi",home:"Beranda",dark:"Mode gelap",light:"Mode terang",timeout:"Waktu habis",correct:"Benar",wrong:"Belum tepat",needName:"Masukkan nama terlebih dahulu."},
+    en:{title:"Science Fact or Hoax",sub:"Decide whether each statement is a scientific fact or a hoax. Every question has 30 seconds.",name:"Name",start:"Start Quiz",fact:"FACT",hoax:"HOAX",next:"Next question",result:"Quiz results",review:"Review answers",again:"Play again",home:"Home",dark:"Dark mode",light:"Light mode",timeout:"Time is up",correct:"Correct",wrong:"Not quite",needName:"Please enter your name first."}
   };
   var BANK = [
-    ["Manusia hanya menggunakan 10% otaknya.","Humans only use 10% of their brain.","Hoaks","Pencitraan otak menunjukkan hampir seluruh bagian otak aktif pada waktu berbeda.","Brain imaging shows nearly all parts of the brain are active at different times."],
-    ["Petir tidak pernah menyambar tempat yang sama dua kali.","Lightning never strikes the same place twice.","Hoaks","Petir bisa menyambar tempat yang sama berulang kali.","Lightning can strike the same place repeatedly."],
-    ["Kelelawar adalah mamalia.","Bats are mammals.","Fakta","Kelelawar menyusui anaknya dan berdarah panas.","Bats nurse their young and are warm-blooded."],
-    ["Semua bakteri berbahaya bagi manusia.","All bacteria are harmful to humans.","Hoaks","Banyak bakteri bermanfaat, misalnya untuk pencernaan.","Many bacteria are beneficial, including in digestion."],
-    ["Air selalu mendidih pada 100 C di mana pun.","Water always boils at 100 C everywhere.","Hoaks","Titik didih bergantung pada tekanan udara.","Boiling point depends on air pressure."],
-    ["Tumbuhan menghasilkan oksigen melalui fotosintesis.","Plants produce oxygen through photosynthesis.","Fakta","Fotosintesis memakai cahaya, air, dan karbon dioksida.","Photosynthesis uses light, water, and carbon dioxide."],
-    ["Banteng marah karena melihat warna merah.","Bulls get angry because they see red.","Hoaks","Yang memicu biasanya gerakan kain, bukan warna.","Movement of the cape, not the color, usually triggers charging."],
-    ["Tembok Besar Tiongkok mudah terlihat dari bulan dengan mata telanjang.","The Great Wall is easily visible from the Moon with the naked eye.","Hoaks","Astronaut tidak melihatnya dari bulan.","Astronauts could not see it from the Moon."],
-    ["Bulan punya sisi yang gelap selamanya.","The Moon has a side that is always dark forever.","Hoaks","Sisi jauh Bulan tetap mendapat sinar Matahari secara bergantian.","The far side still receives sunlight."],
-    ["Musim terjadi karena Bumi miring pada sumbunya.","Seasons happen because Earth is tilted on its axis.","Fakta","Kemiringan sumbu mengubah sudut datang sinar Matahari.","Axial tilt changes how sunlight hits each hemisphere."],
-    ["Pasang surut laut terutama karena gravitasi Bulan.","Ocean tides are caused mainly by the Moon gravity.","Fakta","Gravitasi Bulan menarik air laut.","The Moon gravity pulls on Earth oceans."],
-    ["Rambut dan kuku terus tumbuh setelah orang meninggal.","Hair and nails keep growing after death.","Hoaks","Kulit menyusut sehingga tampak lebih panjang.","Skin shrinks after death, making hair and nails look longer."],
-    ["Darah manusia di vena memang berwarna biru.","Blood in veins is actually blue.","Hoaks","Darah manusia merah. Tampilan biru karena hamburan cahaya di kulit.","Human blood is red. Veins can look blue because of light scattering."],
-    ["Virus dapat berkembang biak sendiri tanpa sel inang.","Viruses can reproduce without a host cell.","Hoaks","Virus membutuhkan sel inang untuk memperbanyak diri.","Viruses need a host cell to replicate."],
-    ["DNA ada pada tumbuhan, hewan, dan jamur.","DNA is found in plants, animals, and fungi.","Fakta","Hampir semua makhluk hidup seluler punya DNA.","Almost all cellular life has DNA."],
-    ["Efek rumah kaca hanya buatan manusia.","The greenhouse effect exists only because of humans.","Hoaks","Efek rumah kaca alami menjaga Bumi tetap hangat.","A natural greenhouse effect keeps Earth warm."],
-    ["Perubahan iklim modern terutama didorong gas rumah kaca dari aktivitas manusia.","Modern climate change is driven mainly by greenhouse gases from human activity.","Fakta","Kenaikan CO2 dari bahan bakar fosil sesuai dengan pola pemanasan.","Rising CO2 from fossil fuels matches the observed warming pattern."],
-    ["Vaksin merangsang sistem imun agar mengenali ancaman tertentu.","Vaccines stimulate the immune system to recognize a specific threat.","Fakta","Vaksin membantu tubuh membentuk perlindungan.","Vaccines help the body build protection."],
-    ["Antibiotik manjur untuk semua infeksi virus seperti flu biasa.","Antibiotics work against all viral infections like the common cold.","Hoaks","Antibiotik menargetkan bakteri, bukan virus.","Antibiotics target bacteria, not viruses."],
-    ["Menaruh baterai di kulkas selalu membuatnya lebih awet.","Storing batteries in the fridge always makes them last longer.","Hoaks","Suhu dingin dan lembap bisa merusak baterai.","Cold damp storage can damage batteries."],
-    ["Manusia hidup bersama dinosaurus non-unggas.","Humans lived with non-avian dinosaurs.","Hoaks","Dinosaurus non-unggas punah jauh sebelum manusia modern.","Non-avian dinosaurs died out long before modern humans."],
-    ["Benda lebih berat selalu jatuh lebih cepat, tanpa hitung hambatan udara.","Heavier objects always fall faster, ignoring air resistance.","Hoaks","Tanpa hambatan udara percepatannya sama.","Without air resistance the acceleration is the same."],
-    ["Matahari adalah bintang.","The Sun is a star.","Fakta","Matahari menghasilkan energi lewat fusi nuklir.","The Sun produces energy by nuclear fusion."],
-    ["Air murni menghantarkan listrik dengan sangat baik.","Pure water conducts electricity very well.","Hoaks","Air murni konduktor buruk. Yang menghantar adalah ion terlarut.","Pure water is a poor conductor. Dissolved ions make it conductive."],
-    ["Lidah punya peta kaku: manis hanya di ujung, pahit hanya di pangkal.","The tongue has a rigid map: sweet only at the tip, bitter only at the back.","Hoaks","Semua daerah lidah dapat mengecap rasa dasar.","All tongue regions can detect basic tastes."],
-    ["Teori ilmiah yang kuat otomatis berubah menjadi hukum alam.","A well-supported theory automatically becomes a law.","Hoaks","Teori dan hukum punya peran berbeda. Teori tidak naik pangkat jadi hukum.","Theories and laws have different roles. A theory does not become a law."],
-    ["Ide ilmiah dapat berubah jika bukti baru lebih kuat.","Scientific ideas can change if stronger evidence appears.","Fakta","Sains memperbaiki diri berdasarkan bukti.","Science corrects itself based on evidence."],
-    ["Kaca biasa adalah padatan amorf, bukan kristal seperti garam.","Ordinary glass is an amorphous solid, not a crystal like salt.","Fakta","Atom pada kaca tidak tersusun teratur seperti kristal.","Atoms in glass are not arranged in a regular crystal."],
-    ["Intan tersusun dari karbon.","Diamond is made of carbon.","Fakta","Intan adalah karbon murni dengan susunan kristal.","Diamond is pure carbon in a crystal structure."]
+    ["Manusia hanya menggunakan 10% otaknya.","Humans only use 10% of their brain.","Hoaks","Penelitian menunjukkan hampir seluruh bagian otak memiliki fungsi tertentu dan digunakan dalam berbagai aktivitas sehari-hari. Tidak ada bukti ilmiah bahwa manusia hanya menggunakan 10% kapasitas otaknya.","Research shows nearly all parts of the brain have specific functions and are used in everyday activity. There is no scientific evidence that humans use only 10% of the brain."],
+    ["Petir tidak pernah menyambar tempat yang sama dua kali.","Lightning never strikes the same place twice.","Hoaks","Petir justru sering menyambar tempat yang sama berulang kali, terutama objek tinggi seperti menara, gedung, atau pohon besar.","Lightning often strikes the same place repeatedly, especially tall objects such as towers, buildings, or large trees."],
+    ["Kelelawar adalah mamalia.","Bats are mammals.","Fakta","Kelelawar melahirkan, menyusui anaknya, dan memiliki rambut, sehingga termasuk kelompok mamalia.","Bats give birth, nurse their young, and have hair, so they are mammals."],
+    ["Semua bakteri berbahaya bagi manusia.","All bacteria are harmful to humans.","Hoaks","Banyak bakteri yang bermanfaat, misalnya membantu pencernaan di usus manusia dan digunakan dalam pembuatan yoghurt serta keju.","Many bacteria are beneficial, for example in human digestion and in making yogurt and cheese."],
+    ["Air mendidih selalu pada suhu 100°C.","Water always boils at 100°C.","Hoaks","Air mendidih pada suhu 100°C di permukaan laut. Di daerah pegunungan yang tekanannya lebih rendah, air dapat mendidih pada suhu di bawah 100°C.","Water boils at 100°C at sea level. In the mountains, where air pressure is lower, water can boil below 100°C."],
+    ["Tumbuhan menghasilkan oksigen melalui proses fotosintesis.","Plants produce oxygen through photosynthesis.","Fakta","Dalam proses fotosintesis, tumbuhan menggunakan karbon dioksida dan air untuk menghasilkan makanan dan melepaskan oksigen ke udara.","In photosynthesis, plants use carbon dioxide and water to make food and release oxygen into the air."],
+    ["Bunglon berubah warna hanya untuk menyamarkan diri.","Chameleons change color only to camouflage.","Hoaks","Bunglon juga mengubah warna tubuhnya untuk berkomunikasi, mengatur suhu tubuh, dan mengekspresikan kondisi fisiologis tertentu.","Chameleons also change color to communicate, regulate body temperature, and express physiological states."],
+    ["Paus adalah ikan.","Whales are fish.","Hoaks","Paus bernapas menggunakan paru-paru, melahirkan, dan menyusui anaknya, sehingga termasuk mamalia, bukan ikan.","Whales breathe with lungs, give birth, and nurse their young, so they are mammals, not fish."],
+    ["Planet Venus lebih panas daripada Merkurius.","Venus is hotter than Mercury.","Fakta","Walaupun Merkurius lebih dekat ke Matahari, Venus memiliki atmosfer yang sangat tebal sehingga panas terperangkap dan suhu permukaannya menjadi lebih tinggi.","Although Mercury is closer to the Sun, Venus has a very thick atmosphere that traps heat, so its surface is hotter."],
+    ["Cacing tanah membantu menyuburkan tanah.","Earthworms help fertilize the soil.","Fakta","Cacing tanah membuat rongga-rongga dalam tanah yang meningkatkan sirkulasi udara dan membantu penguraian bahan organik.","Earthworms create tunnels that improve air circulation and help break down organic matter."],
+    ["Minum es menyebabkan flu.","Drinking ice water causes the flu.","Hoaks","Flu disebabkan oleh infeksi virus, bukan karena minum air es. Air es mungkin membuat tenggorokan terasa kurang nyaman, tetapi bukan penyebab utama flu.","The flu is caused by a virus, not by drinking ice water. Cold drinks may feel uncomfortable in the throat, but they are not the main cause of flu."],
+    ["Wortel dapat meningkatkan kemampuan melihat dalam gelap.","Carrots can improve the ability to see in the dark.","Hoaks","Wortel mengandung vitamin A yang penting untuk kesehatan mata. Namun, makan wortel tidak membuat seseorang memiliki kemampuan melihat dalam gelap seperti kucing.","Carrots contain vitamin A, which is important for eye health. Eating carrots does not give someone night vision like a cat."]
   ];
   var lang = lsGet("sfh_lang") || "id";
   var dark = lsGet("sfh_dark") !== "0";
@@ -154,6 +141,18 @@
     }
     return a;
   }
+  function getName(){
+    var el = document.getElementById("n");
+    return el ? (el.value || "").trim() : "";
+  }
+  function setNameError(show){
+    var err = document.getElementById("nameErr");
+    var input = document.getElementById("n");
+    var go = document.getElementById("go");
+    if(err) err.textContent = show ? t("needName") : "";
+    if(input) input.classList.toggle("invalid", !!show);
+    if(go) go.disabled = !getName();
+  }
   function home(){
     clearInterval(timerId);
     app.innerHTML =
@@ -163,17 +162,28 @@
       '</div>'+
       '<h1>'+t("title")+'</h1>'+
       '<p class="sub">'+t("sub")+'</p>'+
-      '<label>'+t("name")+'</label>'+
-      '<input id="n" maxlength="40" placeholder="'+(lang==="id"?"Nama Anda":"Your name")+'">'+
-      '<button class="btn" id="go">'+t("start")+'</button>';
+      '<label for="n">'+t("name")+'</label>'+
+      '<input id="n" maxlength="40" required placeholder="'+(lang==="id"?"Nama Anda":"Your name")+'">'+
+      '<p class="err" id="nameErr"></p>'+
+      '<button class="btn" id="go" disabled>'+t("start")+'</button>';
     document.getElementById("themeBtn").onclick = function(){
       dark = !dark; lsSet("sfh_dark", dark ? "1" : "0"); applyTheme(); home();
     };
     document.getElementById("langBtn").onclick = function(){
       lang = lang==="id" ? "en" : "id"; lsSet("sfh_lang", lang); home();
     };
+    var input = document.getElementById("n");
+    input.addEventListener("input", function(){ setNameError(false); });
+    input.addEventListener("keydown", function(e){
+      if(e.key === "Enter") document.getElementById("go").click();
+    });
     document.getElementById("go").onclick = function(){
-      var name = (document.getElementById("n").value || (lang==="id"?"Peserta":"Player")).trim();
+      var name = getName();
+      if(!name){
+        setNameError(true);
+        input.focus();
+        return;
+      }
       state = {name:name,i:0,score:0,c:0,w:0,skip:0,qs:shuffle(BANK),log:[]};
       quiz();
     };
@@ -245,4 +255,3 @@
 </script>
 </body>
 </html>
-
